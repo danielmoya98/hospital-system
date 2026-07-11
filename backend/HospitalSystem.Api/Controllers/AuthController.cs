@@ -1,3 +1,4 @@
+using HospitalSystem.Application.Auth.Commands.Bootstrap;
 using HospitalSystem.Application.Auth.Commands.Login;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,20 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { Message = ex.Message });
+        }
+    }
+    
+    [HttpPost("bootstrap")]
+    public async Task<IActionResult> BootstrapAdmin()
+    {
+        try
+        {
+            var result = await _mediator.Send(new BootstrapCommand());
+            return Ok(new { Message = result });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
         }
     }
 }
