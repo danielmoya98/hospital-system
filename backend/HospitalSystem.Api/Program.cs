@@ -92,13 +92,18 @@ public partial class Program
                 var rmqUser = builder.Configuration["RabbitMq:Username"] ?? "guest";
                 var rmqPass = builder.Configuration["RabbitMq:Password"] ?? "guest";
 
-                cfg.Host(rmqHost, rmqVHost, h =>
+                // Definimos el puerto: 5671 para la nube (SSL) y 5672 para tu Docker local
+                ushort rmqPort = (ushort)(rmqHost == "localhost" ? 5672 : 5671);
+
+                // Pasamos el puerto explícitamente a la configuración del Host
+                cfg.Host(rmqHost, rmqPort, rmqVHost, h =>
                 {
                     h.Username(rmqUser);
                     h.Password(rmqPass);
                     
                     if (rmqHost != "localhost")
                     {
+                        // Ahora sí, el SSL negociará correctamente a través del puerto 5671
                         h.UseSsl(s => { s.Protocol = System.Security.Authentication.SslProtocols.Tls12; });
                     }
                 });
