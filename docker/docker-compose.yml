@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Base de Datos
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: hospital_password
+      POSTGRES_DB: hospital_db
+    ports:
+      - "5432:5432"
+
+  # Caché
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # Mensajería
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672" # UI de Management
+
+  # Almacenamiento de Archivos
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: hospital_password
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  # Logs Centralizados
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: Y
+    ports:
+      - "5341:5341"
+      - "8081:80" # Interfaz web de Seq
+
+  # Observabilidad (Versiones simplificadas para el setup)
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
